@@ -22,8 +22,8 @@ jobs:
       - name: Setup
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm git base-devel bc python3 ccache zip libelf mkbootimg \
-          arm-none-eabi-gcc arm-none-eabi-binutils
+          # mkbootimg kaldırıldı, diğer gerekli araçlar eklendi
+          pacman -S --noconfirm git base-devel bc python3 ccache zip libelf pahole cpio
 
       - name: Clone Kernel
         run: |
@@ -38,7 +38,10 @@ jobs:
           
           git clone https://github.com/Takumi123w/AnyKernel3.git AnyKernel3
 
+          # Toolchain yetkilerini ver
           chmod +x ./arm-linux-androideabi-4.9/bin/* || true
+          
+          # Path tanımlamaları
           export CROSS_COMPILE=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-
           export CC=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-gcc
           
@@ -50,7 +53,14 @@ jobs:
         working-directory: kernel_src
         run: |
           TIME=$(date +%Y%m%d-%H%M)
-          cp out/arch/arm/boot/Image ./AnyKernel3/Image
+          # Çıktı kontrolü ve kopyalama
+          if [ -f "out/arch/arm/boot/Image" ]; then
+            cp out/arch/arm/boot/Image ./AnyKernel3/Image
+          else
+            echo "HATA: Image dosyası bulunamadı! Derleme başarısız olmuş olabilir."
+            exit 1
+          fi
+          
           cd AnyKernel3
           zip -r9 "../../Kernel-A01Core-$TIME.zip" * -x .git *.zip README.md *placeholder
 
