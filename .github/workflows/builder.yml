@@ -1,4 +1,4 @@
-name: A01 Core Kernel Builder
+name: JAmmbazz A01 Core Kernel Builder
 
 on:
   workflow_dispatch:
@@ -31,13 +31,13 @@ jobs:
       - name: Install KernelSU Next
         working-directory: kernel_src
         run: |
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/stable/kernel/setup.sh" | bash -s stable
+          curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s stable
 
       - name: Build
         working-directory: kernel_src
         run: |
           export ARCH=arm
-          export KBUILD_BUILD_USER="Gemini"
+          export KBUILD_BUILD_USER="jammbazz"
           export KBUILD_BUILD_HOST="GitHub-Actions"
           
           git clone https://github.com/Takumi123w/AnyKernel3.git AnyKernel3
@@ -51,8 +51,7 @@ jobs:
           
           make O=out a01core_defconfig
           scripts/config --file out/.config -e CONFIG_KSU
-          scripts/config --file out/.config -e CONFIG_KSU_NEXT
-          
+
           make O=out -j$(nproc --all) KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
       - name: Package
