@@ -6,11 +6,11 @@ on:
       kernel_url:
         description: 'Kernel kaynak kodu (Repo) URL adresi'
         required: true
-        default: ''
+        default: 'https://github.com/jammbazz/kernel-a01core-hw'
       kernel_branch:
         description: 'Branch adı'
         required: true
-        default: 'master'
+        default: 'main'
 
 jobs:
   build:
