@@ -22,12 +22,17 @@ jobs:
       - name: Setup
         run: |
           pacman -Syu --noconfirm
-          # mkbootimg kaldırıldı, diğer gerekli araçlar eklendi
-          pacman -S --noconfirm git base-devel bc python3 ccache zip libelf pahole cpio
+          pacman -S --noconfirm git base-devel bc python3 ccache zip libelf pahole cpio curl
 
       - name: Clone Kernel
         run: |
           git clone -b ${{ github.event.inputs.kernel_branch }} ${{ github.event.inputs.kernel_url }} kernel_src
+
+      - name: Install KernelSU Next
+        working-directory: kernel_src
+        run: |
+          # KernelSU Next kurulumu (Otomatik entegrasyon)
+          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/main/kernel/setup.sh" | bash -s main
 
       - name: Build
         working-directory: kernel_src
@@ -38,34 +43,36 @@ jobs:
           
           git clone https://github.com/Takumi123w/AnyKernel3.git AnyKernel3
 
-          # Toolchain yetkilerini ver
           chmod +x ./arm-linux-androideabi-4.9/bin/* || true
           
-          # Path tanımlamaları
           export CROSS_COMPILE=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-
           export CC=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-gcc
           
           mkdir -p out
+          
+          # KSU ayarlarını defconfig'e ekle (Eğer defconfig içinde yoksa manuel ekliyoruz)
           make O=out a01core_defconfig
+          scripts/config --file out/.config -e CONFIG_KSU
+          scripts/config --file out/.config -e CONFIG_KSU_NEXT
+          
           make O=out -j$(nproc --all) KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
       - name: Package
         working-directory: kernel_src
         run: |
           TIME=$(date +%Y%m%d-%H%M)
-          # Çıktı kontrolü ve kopyalama
           if [ -f "out/arch/arm/boot/Image" ]; then
             cp out/arch/arm/boot/Image ./AnyKernel3/Image
           else
-            echo "HATA: Image dosyası bulunamadı! Derleme başarısız olmuş olabilir."
+            echo "HATA: Image bulunamadı!"
             exit 1
           fi
           
           cd AnyKernel3
-          zip -r9 "../../Kernel-A01Core-$TIME.zip" * -x .git *.zip README.md *placeholder
+          zip -r9 "../../Kernel-A01Core-Hawaii-KSU-$TIME.zip" * -x .git *.zip README.md *placeholder
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: A01Core-Kernel
+          name: A01Core-Hawaii-KSU-Kernel
           path: "*.zip"
