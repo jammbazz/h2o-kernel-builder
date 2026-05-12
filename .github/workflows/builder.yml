@@ -51,7 +51,7 @@ jobs:
           
           make O=out a01core_defconfig
 
-          make O=out -j$(nproc --all) V=1 CONFIG_SECTION_MISMATCH_WARN_ONLY=y 2>&1
+          make O=out -j$(nproc --all) KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
       - name: Package
         working-directory: kernel_src
