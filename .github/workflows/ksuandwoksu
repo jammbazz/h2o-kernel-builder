@@ -1,4 +1,4 @@
-name: JAmmbazz A01 Core Kernel Builder
+name: JAmmbazz A01 Core Kernel Builder W K
 
 on:
   workflow_dispatch:
