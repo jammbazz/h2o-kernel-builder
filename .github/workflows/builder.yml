@@ -31,7 +31,7 @@ jobs:
       - name: Install KernelSU Next
         working-directory: kernel_src
         run: |
-          curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
+          curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -
 
       - name: Build
         working-directory: kernel_src
