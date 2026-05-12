@@ -50,9 +50,8 @@ jobs:
           mkdir -p out
           
           make O=out a01core_defconfig
-          scripts/config --file out/.config -e CONFIG_KSU
 
-          make O=out -j$(nproc --all) CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+          make O=out -j$(nproc --all) V=1 CONFIG_SECTION_MISMATCH_WARN_ONLY=y 2>&1
 
       - name: Package
         working-directory: kernel_src
