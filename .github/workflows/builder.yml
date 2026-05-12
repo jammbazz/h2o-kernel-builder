@@ -31,7 +31,6 @@ jobs:
       - name: Install KernelSU Next
         working-directory: kernel_src
         run: |
-          # KernelSU Next kurulumu (Otomatik entegrasyon)
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/main/kernel/setup.sh" | bash -s main
 
       - name: Build
