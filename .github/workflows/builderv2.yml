@@ -60,7 +60,12 @@ jobs:
       - name: Build Kernel
         run: |
           cd kernel_src
+          
+          # Hata veren GCC argümanlarını Makefile'dan temizle
+          sed -i 's/-mapcs//g' arch/arm/Makefile || true
+          sed -i 's/-mno-sched-prolog//g' arch/arm/Makefile || true
           sed -i 's/--output-sync/-O/g' Makefile || true
+          
           export ARCH=arm
           export KBUILD_BUILD_USER="jammbazz"
           export KBUILD_BUILD_HOST="Hawaii-Build-Server"
@@ -73,6 +78,7 @@ jobs:
           sed -i 's/CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/g' out/.config
           echo "CONFIG_CC_STACKPROTECTOR_NONE=y" >> out/.config
           
+          # Derleme
           export KCFLAGS="-w -O3 -fno-stack-protector -fuse-linker-plugin -ftree-vectorize"
           make O=out -j$(nproc --all) CC=clang CROSS_COMPILE=$CROSS_COMPILE KCFLAGS="-w" CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
