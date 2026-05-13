@@ -60,21 +60,17 @@ jobs:
       - name: Build Kernel
         run: |
           cd kernel_src
-          
+          sed -i 's/--output-sync/-O/g' Makefile || true
           export ARCH=arm
           export KBUILD_BUILD_USER="jammbazz"
           export KBUILD_BUILD_HOST="Hawaii-Build-Server"
-          
           export CROSS_COMPILE=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-
           export CC=clang
           export CLANG_TRIPLE=arm-linux-gnueabi-
-          
           export KCFLAGS="-O3 -w -fno-stack-protector -fuse-linker-plugin -ftree-vectorize"
-          export CONFIG_SECTION_MISMATCH_WARN_ONLY=y
-          
           mkdir -p out
           make O=out a01core_defconfig
-          make O=out -j$(nproc --all) $KCFLAGS CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+          make O=out -j$(nproc --all) CC=$CC CROSS_COMPILE=$CROSS_COMPILE KCFLAGS="$KCFLAGS" CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
       - name: Repack AnyKernel3
         run: |
