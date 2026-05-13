@@ -1,4 +1,4 @@
-name: Hawaii Kernel Auto-Build
+name: Hawaii Kernel Builder V2
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
       kernel_repo:
         description: 'Kernel Repo URL'
         required: true
-        default: 'https://github.com/jammbazz/kernel_repo'
+        default: 'https://github.com/jammbazz/hawaiikernel-a01core'
       kernel_branch:
         description: 'Kernel Branch'
         required: true
-        default: 'master'
+        default: 'ksu'
       anykernel_repo:
         description: 'AnyKernel3 Repo URL'
         required: true
