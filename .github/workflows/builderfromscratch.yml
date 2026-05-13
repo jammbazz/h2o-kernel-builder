@@ -38,7 +38,11 @@ jobs:
       - name: Setup Toolchain
         run: |
           cd kernel_src
-          git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git arm-linux-androideabi-4.9
+          if [ ! -d "arm-linux-androideabi-4.9" ]; then
+            git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git arm-linux-androideabi-4.9
+          else
+            echo "Toolchain already exists, skipping clone."
+          fi
           chmod +x ./arm-linux-androideabi-4.9/bin/* || true
 
       - name: Setup RKSU & Fixes
