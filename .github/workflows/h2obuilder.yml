@@ -1,0 +1,68 @@
+name: Hawaii Kernel Builder Dual-Branch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    strategy:
+      matrix:
+        branch: [main, ksu]
+    steps:
+      - name: Install Dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm clang llvm lld base-devel bc zip curl openssl git python3 flex bison
+
+      - name: Checkout Kernel
+        run: |
+          git clone --depth=1 -b ${{ matrix.branch }} https://github.com/jammbazz/hawaiikernel-a01core kernel_src
+
+      - name: Setup Toolchain
+        run: |
+          cd kernel_src
+          if [ ! -d "arm-linux-androideabi-4.9" ]; then
+            git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git arm-linux-androideabi-4.9
+          fi
+          chmod +x ./arm-linux-androideabi-4.9/bin/* || true
+
+      - name: Setup KernelSU
+        if: matrix.branch == 'ksu'
+        run: |
+          cd kernel_src
+          curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s v3.0.0-30-legacy
+          sed -i 's|#define KERNEL_SU_ALLOWLIST "/data/adb/ksu/.allowlist"|#define KERNEL_SU_ALLOWLIST "/data/.allowlist"|g' "KernelSU/kernel/allowlist.c"
+          sed -i 's|O_TRUNC, 0644|O_TRUNC, 0664|g' "KernelSU/kernel/allowlist.c"
+          if [ -f "drivers/kernelsu/sulog/event.c" ]; then
+            sed -i '1i #define untagged_addr(x) (x)' drivers/kernelsu/sulog/event.c
+          fi
+
+      - name: Build Kernel
+        run: |
+          cd kernel_src
+          sed -i 's/--output-sync/-O/g' Makefile || true
+          export ARCH=arm
+          export KBUILD_BUILD_USER="jammbazz"
+          export KBUILD_BUILD_HOST="Hawaii-Build-Server"
+          export CROSS_COMPILE=$(pwd)/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-
+          export KCFLAGS="-O3 -w -fno-stack-protector -fuse-linker-plugin -ftree-vectorize"
+          mkdir -p out
+          make O=out a01core_defconfig
+          make O=out -j$(nproc --all) CROSS_COMPILE=$CROSS_COMPILE KCFLAGS="$KCFLAGS" CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+
+      - name: Repack AnyKernel3
+        run: |
+          TIME=$(date +%Y%m%d-%H%M)
+          git clone --depth=1 -b master https://github.com/Takumi123w/AnyKernel3 AnyKernel3
+          cp kernel_src/out/arch/arm/boot/Image AnyKernel3/
+          cd AnyKernel3
+          zip -r9 "../Hawaii-Kernel-${{ matrix.branch }}-$TIME.zip" * -x .git *.zip README.md *placeholder
+
+      - name: Upload Kernel
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: Hawaii-Kernel-${{ matrix.branch }}
+          path: "*.zip"
