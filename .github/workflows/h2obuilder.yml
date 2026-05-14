@@ -1,4 +1,4 @@
-name: Hawaii Kernel Builder Dual-Branch
+name: H2O Kernel Builder
 
 on:
   workflow_dispatch:
