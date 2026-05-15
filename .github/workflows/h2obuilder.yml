@@ -56,7 +56,7 @@ jobs:
       - name: Repack AnyKernel3
         run: |
           TIME=$(date +%Y%m%d-%H%M)
-          git clone --depth=1 -b master https://github.com/Takumi123w/AnyKernel3 AnyKernel3
+          git clone --depth=1 -b master https://github.com/jammbazz/AnyKernel3 AnyKernel3
           cp kernel_src/out/arch/arm/boot/Image AnyKernel3/
           cd AnyKernel3
           zip -r9 "../Hawaii-Kernel-${{ matrix.branch }}-$TIME.zip" * -x .git *.zip README.md *placeholder
