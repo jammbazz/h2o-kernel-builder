@@ -10,7 +10,7 @@ jobs:
       image: archlinux:latest
     strategy:
       matrix:
-        branch: [main, lz4update-test]
+        branch: [main, neon]
     steps:
       - name: Install Dependencies
         run: |
