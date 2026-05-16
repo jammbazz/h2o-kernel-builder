@@ -10,7 +10,7 @@ jobs:
       image: archlinux:latest
     strategy:
       matrix:
-        branch: [main, neon]
+        ksu_variant: [non-ksu, ksu]
     steps:
       - name: Install Dependencies
         run: |
@@ -19,7 +19,7 @@ jobs:
 
       - name: Checkout Kernel
         run: |
-          git clone --depth=1 -b ${{ matrix.branch }} https://github.com/jammbazz/hawaiikernel-a01core kernel_src
+          git clone --depth=1 -b R1 https://github.com/jammbazz/hawaiikernel-a01core kernel_src
 
       - name: Setup Toolchain
         run: |
@@ -30,7 +30,7 @@ jobs:
           chmod +x ./arm-linux-androideabi-4.9/bin/* || true
 
       - name: Setup KernelSU
-        if: matrix.branch == 'ksu'
+        if: matrix.ksu_variant == 'ksu'
         run: |
           cd kernel_src
           curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s v3.0.0-30-legacy
@@ -59,10 +59,10 @@ jobs:
           git clone --depth=1 -b master https://github.com/jammbazz/AnyKernel3 AnyKernel3
           cp kernel_src/out/arch/arm/boot/Image AnyKernel3/
           cd AnyKernel3
-          zip -r9 "../Hawaii-Kernel-${{ matrix.branch }}-$TIME.zip" * -x .git *.zip README.md *placeholder
+          zip -r9 "../Hawaii-Kernel-R1-${{ matrix.ksu_variant }}-$TIME.zip" * -x .git *.zip README.md *placeholder
 
       - name: Upload Kernel
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: Hawaii-Kernel-${{ matrix.branch }}
+          name: Hawaii-Kernel-R1-${{ matrix.ksu_variant }}
           path: "*.zip"
