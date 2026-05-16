@@ -1,4 +1,4 @@
-name: H2O Kernel Builder
+name: H2O Kernel Builder - main
 
 on:
   workflow_dispatch:
