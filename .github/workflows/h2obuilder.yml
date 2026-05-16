@@ -19,7 +19,7 @@ jobs:
 
       - name: Checkout Kernel
         run: |
-          git clone --depth=1 -b R1 https://github.com/jammbazz/hawaiikernel-a01core kernel_src
+          git clone --depth=1 -b main https://github.com/jammbazz/hawaiikernel-a01core kernel_src
 
       - name: Setup Toolchain
         run: |
